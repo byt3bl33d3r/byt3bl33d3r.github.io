@@ -52,7 +52,7 @@
             </section>
             <p>Wow a lot has happened in the past months!</p>
 <p>I'm happy to announce that MITMf is now in the Kali Linux repositories (as some of you might already have noticed), also MITMf was accepted in the Black Hat Asia 2015 Arsenal Panel! Wohoo! </p>
-<p><img alt="fuckyeah" src="/images/fuck_yeah.gif" /></p>
+<p><img style="display: block; margin-left: auto; margin-right: auto" src="/images/fuck_yeah.gif"></p>
 <p>So now you can just run <code>apt-get install mitmf</code> in kali linux and your ready to rock and/or roll! Big thanks to <a href="https://twitter.com/kalilinux">@muts</a> for all the help, patience and effort for setting up the framework for the distro!</p>
 <p>So v0.9.5, under the hood, has had a major architecture redesign, lots of bug fixes and modularity improvements.This partially to get Responder up and running (more on that later) and to stop replicating code changes to the three versions of SSLstrip that MITMf used and to all of the plugins.</p>
 <p>All three versions are now 'condensed' into a single version which you can find under the libs/sslstrip directory if you want to tinker with it.</p>
@@ -84,7 +84,22 @@
 <p>Also for all of the people wanting a tutorial , hopefully they will record the panel at BH Asia and put it on youtube in the coming months.</p>
             <div class="hr"></div>
             <a href="#" class="go-top">Go Top</a>
-<footer class="footer">
+<div class="comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = "byt3bl33d3r"; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div><footer class="footer">
     <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
 </footer>        </div>
     </div>
