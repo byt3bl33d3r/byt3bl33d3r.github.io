@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > brain.py">
+
+
+        <title>Using Nfqueue with Python the right way // byt3bl33d3r // /dev/random > brain.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Tue 10 March 2015</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Using Nfqueue with Python the right way</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/networking.html">Networking</a>
+                                <a class="post-category" href="/tag/python.html">Python</a>
+                                <a class="post-category" href="/tag/nfqueue.html">Nfqueue</a>
+                        </p>
+                </header>
+            </section>
+            <p>While I was re-writing the Spoof plugin for MITMf I came across the "pythonic" way of using Nfqueue with python.</p>
+<p>Previously the plugin was using code from <a href="https://github.com/DanMcInerney/dnsspoof/blob/master/dnsspoof.py">dnspoof.py</a> for DNS tampering, which used the nfqueue-bindings python library from <a href="https://github.com/kti/python-netfilterqueue">here</a>.</p>
+<p>Problem was that it was a pain to setup: you had to manually compile the bindings since the package in almost every distros repository is extremely out of date.</p>
+<p>Also the library syntax wasn't exactly pretty, and sometimes it threw random errors for no apparent reason.</p>
+<p>The alternative to this is the python-netfilterqueue library, which provides a much nicer syntax but unfortunately does not currently implement the full API for <code>libnetfilter_queue</code>, most importantly it lacks the 
+<code>packet.set_payload()</code>function call for altering packet data.</p>
+<p>So at this point I was going to implement the function call myself since I was getting desperate, then I noticed that the repo had two un-merged pull requests:</p>
+<p><img alt="nfquque" src="/images/nfqueue2.png" /></p>
+<p>To which my reaction was quite like this:</p>
+<p><img alt="approves" src="/images/approves.gif" /></p>
+<p>Huge props to @fqrouter, he really did an awesome job! you can find his fork <a href="https://github.com/fqrouter/python-netfilterqueue">here</a>.</p>
+<p>So now, after installing it, all we need to do to get everything working is set an iptables rule specifying the queue number (In my case I was interested in DNS requests, change this to your needs):</p>
+<div class="highlight"><pre>iptables -t nat -A PREROUTING -p udp --dport 53 -j NFQUEUE --queue-num 1
+</pre></div>
+
+
+<p>then use the following code to actually modify the packet with the help of scapy:</p>
+<div class="highlight"><pre><span class="c">#! /usr/bin/env python2.7</span>
+<span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">netfilterqueue</span> <span class="kn">import</span> <span class="n">NetfilterQueue</span>
+
+<span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="n">packet</span><span class="p">):</span>
+    <span class="n">pkt</span> <span class="o">=</span> <span class="n">IP</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">get_payload</span><span class="p">())</span> <span class="c">#converts the raw packet to a scapy compatible string</span>
+
+    <span class="c">#modify the packet all you want here</span>
+
+    <span class="n">packet</span><span class="o">.</span><span class="n">set_payload</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pkt</span><span class="p">))</span> <span class="c">#set the packet content to our modified version</span>
+
+    <span class="n">packet</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span> <span class="c">#accept the packet</span>
+
+
+
+<span class="n">nfqueue</span> <span class="o">=</span> <span class="n">NetfilterQueue</span><span class="p">()</span>
+<span class="c">#1 is the iptabels rule queue number, modify is the callback function</span>
+<span class="n">nfqueue</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">modify</span><span class="p">)</span> 
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&quot;[*] waiting for data&quot;</span>
+    <span class="n">nfqueue</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+
+
+<p>Easy peasy!</p>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        try {
+            var pageTracker = _gat._getTracker("UA-57722219-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+    </script>
+</body>
+</html>

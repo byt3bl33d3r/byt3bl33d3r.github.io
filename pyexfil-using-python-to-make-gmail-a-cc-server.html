@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > brain.py">
+
+
+        <title>Pyexfil - Using Python to make Gmail a C&C server // byt3bl33d3r // /dev/random > brain.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Sat 19 July 2014</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Pyexfil - Using Python to make Gmail a C&C server</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/backdoor.html">Backdoor</a>
+                                <a class="post-category" href="/tag/python.html">Python</a>
+                                <a class="post-category" href="/tag/tool.html">Tool</a>
+                        </p>
+                </header>
+            </section>
+            <p>Now I'm pretty sure there was a talk at BlackHat a couple of years ago about doing this, so this might not be anything new but I'll write about it anyway.</p>
+<p>This is a great way to exfiltrate data from a network: it's stealthy (who looks at traffic going to google?), it's encrypted (the python imap and smtp library automatically handles SSL/TLS) and plus it bypasses AV completely (Pyinstaller FTW!).</p>
+<p>The only drawback is that the compiled binary is huge: around 5MB, sometimes though that too can be a benefit since a lot of AVs won't scan files larger that a 2-3MB (unless explicitly told to do so) to increase performance!</p>
+<p>You can get the PoC code here <a href="https://github.com/byt3bl33d3r/pyexfil">https://github.com/byt3bl33d3r/pyexfil</a></p>
+<p>Currently it supports running os commands,running shellcode (Pyinjector style), taking screenshots, and downloading files from the victims system.</p>
+<p>You could add a lot of functionality to this (like a keylogger if you wanted to be very evil) but for me this is just fine.</p>
+<p><strong>Update: Now pyexfil will send the title of the foreground window with every response!</strong></p>
+<p>So basically what we do is create a label called Commands; this is where pyexfil will look for new commands to execute (Duh!):</p>
+<p><img alt="pyexfil1" src="/images/pyexfil1.png" /></p>
+<p>After our target checks in:</p>
+<p><img alt="pyexfil2" src="/images/pyexfil2.png" /></p>
+<p>All we do is send an email to ourself with the subject line containing the hostname of our target and in the message body the command we want to execute and lable it as "Commands":</p>
+<p><img alt="pyexfil3" src="/images/pyexfil3.png" /></p>
+<p>after a couple of seconds the results will be emailed back to us:</p>
+<p><img alt="pyexfil4" src="/images/pyexfil4.png" /></p>
+<p>There are a few custom commands like <code>screenshot</code>, <code>download</code> and <code>execshellcode</code> which all do what they sound like ;)</p>
+<p><img alt="Screenshot Command" src="/images/pyexfil5.png" /></p>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        try {
+            var pageTracker = _gat._getTracker("UA-57722219-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+    </script>
+</body>
+</html>
