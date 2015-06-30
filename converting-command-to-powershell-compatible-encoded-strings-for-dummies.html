@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
+
+
+        <title>Converting command to powershell compatible encoded strings for dummies // byt3bl33d3r // /dev/random > blog.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                        <img class="avatar" alt="byt3bl33d3r" src="http://www.gravatar.com/avatar/e5572ab64fbf9e21bce12ade9d13487b">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Tue 30 June 2015</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Converting command to powershell compatible encoded strings for dummies</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/powershell.html">Powershell</a>
+                                <a class="post-category" href="/tag/pentesting.html">Pentesting</a>
+                                <a class="post-category" href="/tag/reminder.html">Reminder</a>
+                        </p>
+                </header>
+            </section>
+            <p>This is basically a reminder for me but could be useful for anyone. I keep forgetting how to convert commands to a Powershell compatible encoded string:</p>
+<ul>
+<li>From the command line: </li>
+</ul>
+<div class="highlight"><pre>echo &quot;iex(command)&quot; | iconv --to-code UTF-16LE | base64 -w 0
+</pre></div>
+
+
+<ul>
+<li>For Python:</li>
+</ul>
+<p>:::python
+  from base64 import b64encode
+  b64encode('iex(command)'.encode('UTF-16LE'))</p>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<div class="comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = "byt3bl33d3r"; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div><footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        try {
+            var pageTracker = _gat._getTracker("UA-57722219-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+    </script>
+</body>
+</html>
