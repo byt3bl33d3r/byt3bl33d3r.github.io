@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
+
+
+        <title>Dev update: what awaits in MITMf v0.9.8 // byt3bl33d3r // /dev/random > blog.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                        <img class="avatar" alt="byt3bl33d3r" src="http://www.gravatar.com/avatar/e5572ab64fbf9e21bce12ade9d13487b">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Tue 30 June 2015</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Dev update: what awaits in MITMf v0.9.8</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/mitmf.html">MITMf</a>
+                                <a class="post-category" href="/tag/devupdate.html">DevUpdate</a>
+                                <a class="post-category" href="/tag/python.html">Python</a>
+                        </p>
+                </header>
+            </section>
+            <p>I know, I know... it's been a while!</p>
+<p>This is just to bring everyone (and with everyone I mean the 10 people who read this blog) up to speed on what's going to be heading your way in the next version bump.
+Currently, I'm in the process of porting MITMf's base proxy over to the awesome <a href="http://mitmproxy.org/">mitmproxy</a> library, so goodbye Twisted!</p>
+<p>This is kind of a big thing, it's why development on the old code base is at a stand still.. But it will make MITMf even more badass:</p>
+<ul>
+<li>The code base will halved! (I'm not even kidding)</li>
+<li>Plugins will use &amp; benifit from <a href="http://mitmproxy.org/doc/scripting/inlinescripts.html">mitmproxy's API</a></li>
+<li>TLS/SSL interception support! (mind blowing, opens up a whole bunch of evi.. eer fun things to do)</li>
+<li>Less dependencies!</li>
+<li>HTTP/2 support!</li>
+<li>Overall better code quality, which hopefully means more pull requests! Hint! ;)</li>
+</ul>
+<p>Also MITMf was accepted into the Black Hat USA Arsenal this year, If you're in Vegas come check it out <a href="https://www.blackhat.com/us-15/schedule/arsenal-5.html">August 5!</a></p>
+<p>To celebrate, I'm working on a couple of new plugins which I'll drop during the conference (If you've been following the project long enough you can probably guess what they are)</p>
+<p>Finally, MITMf has been ported to a <a href="https://github.com/xtr4nge/FruityWifi">FruityWifi</a> module! thanks to <a href="https://twitter.com/FruityWifi">@xtr4nge</a> for the PR and effort! I'm also expecting to see MITMf in the MANA toolkit and the Wifi Pineapple by the end of this year (fingers crossed!)</p>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<div class="comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = "byt3bl33d3r"; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div><footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        try {
+            var pageTracker = _gat._getTracker("UA-57722219-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+    </script>
+</body>
+</html>
