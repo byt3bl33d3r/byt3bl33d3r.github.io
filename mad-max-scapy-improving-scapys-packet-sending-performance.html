@@ -51,19 +51,19 @@
                 </header>
             </section>
             <p>I've been using Scapy for years and one thing that's always bothered me was it's performace, especially when it comes to sending packets, to give you an idea:</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
-    <span class="n">send</span><span class="p">(</span><span class="n">ARP</span><span class="p">(</span><span class="n">pdst</span><span class="o">=</span><span class="s">&#39;192.168.1.88&#39;</span><span class="p">,</span> 
-             <span class="n">psrc</span><span class="o">=</span><span class="s">&#39;192.168.1.11&#39;</span><span class="p">,</span> 
-             <span class="n">hwdst</span><span class="o">=</span><span class="s">&#39;f0:84:2f:fb:a8:89&#39;</span><span class="p">,</span> 
-             <span class="n">op</span><span class="o">=</span><span class="s">&#39;is-at&#39;</span><span class="p">),</span> 
-        <span class="n">iface</span><span class="o">=</span><span class="s">&#39;enp3s0&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="k">print</span> <span class="s">&#39;sent packet&#39;</span>
+    <span class="n">send</span><span class="p">(</span><span class="n">ARP</span><span class="p">(</span><span class="n">pdst</span><span class="o">=</span><span class="s1">&#39;192.168.1.88&#39;</span><span class="p">,</span> 
+             <span class="n">psrc</span><span class="o">=</span><span class="s1">&#39;192.168.1.11&#39;</span><span class="p">,</span> 
+             <span class="n">hwdst</span><span class="o">=</span><span class="s1">&#39;f0:84:2f:fb:a8:89&#39;</span><span class="p">,</span> 
+             <span class="n">op</span><span class="o">=</span><span class="s1">&#39;is-at&#39;</span><span class="p">),</span> 
+        <span class="n">iface</span><span class="o">=</span><span class="s1">&#39;enp3s0&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s1">&#39;sent packet&#39;</span>
 </pre></div>
 
 
 <p>Simple enough, were just sending 10 ARP packets:</p>
-<div class="highlight"><pre>time sudo python normal_send.py
+<div class="highlight"><pre><span></span>time sudo python normal_send.py
 WARNING: No route found for IPv6 destination :: (no default route?)
 sent packet
 sent packet
@@ -81,7 +81,7 @@ sudo -E python normal_send.py  0.38s user 0.04s system 32% cpu 1.311 total
 
 <p>So it took us 1.311 seconds to send 10 packets?? Boooo! That's way too long! Surely there must be something we can do to speed things up a bit!</p>
 <p>After downloading the source, I took a look at the <em>send()</em> function in the <em>sendrecv.py</em> file:</p>
-<div class="highlight"><pre><span class="nd">@conf.commands.register</span>
+<div class="highlight"><pre><span></span><span class="nd">@conf.commands.register</span>
 <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">realtime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
 <span class="sd">&quot;&quot;&quot;Send packets at layer 3 send(packets, [inter=0], [loop=0], [verbose=conf.verb]) -&gt; None&quot;&quot;&quot;</span>
 <span class="n">__gen_send</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">L3socket</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">inter</span><span class="o">=</span><span class="n">inter</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">realtime</span><span class="o">=</span><span class="n">realtime</span><span class="p">)</span>
@@ -89,7 +89,7 @@ sudo -E python normal_send.py  0.38s user 0.04s system 32% cpu 1.311 total
 
 
 <p>Well ok, looks like it's creating a socket and passing it the function arguments, lets take a look at <em>__gen_send()</em>:</p>
-<div class="highlight"><pre><span class="k">def</span> <span class="nf">__gen_send</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">realtime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__gen_send</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">realtime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">raw_layer</span><span class="p">(</span><span class="n">load</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Gen</span><span class="p">):</span>
@@ -116,7 +116,7 @@ sudo -E python normal_send.py  0.38s user 0.04s system 32% cpu 1.311 total
                 <span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                 <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s">&quot;.&quot;</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">inter</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">loop</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">loop</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -124,7 +124,7 @@ sudo -E python normal_send.py  0.38s user 0.04s system 32% cpu 1.311 total
         <span class="k">pass</span>
     <span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Sent </span><span class="si">%i</span><span class="s"> packets.&quot;</span> <span class="o">%</span> <span class="n">n</span>
+        <span class="k">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Sent </span><span class="si">%i</span><span class="s2"> packets.&quot;</span> <span class="o">%</span> <span class="n">n</span>
 </pre></div>
 
 
@@ -133,7 +133,7 @@ At second glance I noticed that pesky <em>s.close()</em>! It's closing the socke
 <p>Every time you invoke <em>send()</em> or <em>sendp()</em> Scapy will automatically create and close a socket for every packet you send!
 I can see convenience in that, makes the API much simpler! But I'm willing to bet that definitely takes a hit on performance!</p>
 <p>Grep'ing the source, we can see other places where it's used:</p>
-<div class="highlight"><pre>scapy/config.py:342:    L3socket = None
+<div class="highlight"><pre><span></span>scapy/config.py:342:    L3socket = None
 scapy/supersocket.py:138:if conf.L3socket is None:
 scapy/supersocket.py:139:    conf.L3socket = L3RawSocket
 scapy/sendrecv.py:251:    __gen_send(conf.L3socket(*args, **kargs), x, inter=inter, loop=loop, count=count,verbose=verbose, realtime=realtime)
@@ -155,26 +155,26 @@ doc/scapy/usage.rst:508:    &gt;&gt;&gt; conf.L3socket=L3dnetSocket
 
 
 <p>Cool! Judging from <em>scapypipes.py</em> line 83 , all we need to do to open a socket is:</p>
-<div class="highlight"><pre><span class="n">s</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">L3socket</span><span class="p">(</span><span class="n">iface</span><span class="o">=</span><span class="n">interface</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">L3socket</span><span class="p">(</span><span class="n">iface</span><span class="o">=</span><span class="n">interface</span><span class="p">)</span>
 </pre></div>
 
 
 <p>Let's try it out!</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scapy.all</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="n">s</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">L3socket</span><span class="p">(</span><span class="n">iface</span><span class="o">=</span><span class="s">&#39;enp3s0&#39;</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">L3socket</span><span class="p">(</span><span class="n">iface</span><span class="o">=</span><span class="s1">&#39;enp3s0&#39;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">ARP</span><span class="p">(</span><span class="n">pdst</span><span class="o">=</span><span class="s">&#39;192.168.1.88&#39;</span><span class="p">,</span> 
-               <span class="n">psrc</span><span class="o">=</span><span class="s">&#39;192.168.1.11&#39;</span><span class="p">,</span> 
-               <span class="n">hwdst</span><span class="o">=</span><span class="s">&#39;f0:84:2f:fb:a8:89&#39;</span><span class="p">,</span> 
-               <span class="n">op</span><span class="o">=</span><span class="s">&#39;is-at&#39;</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">ARP</span><span class="p">(</span><span class="n">pdst</span><span class="o">=</span><span class="s1">&#39;192.168.1.88&#39;</span><span class="p">,</span> 
+               <span class="n">psrc</span><span class="o">=</span><span class="s1">&#39;192.168.1.11&#39;</span><span class="p">,</span> 
+               <span class="n">hwdst</span><span class="o">=</span><span class="s1">&#39;f0:84:2f:fb:a8:89&#39;</span><span class="p">,</span> 
+               <span class="n">op</span><span class="o">=</span><span class="s1">&#39;is-at&#39;</span><span class="p">)</span>
           <span class="p">)</span>
-    <span class="k">print</span> <span class="s">&#39;sent packet&#39;</span>
+    <span class="k">print</span> <span class="s1">&#39;sent packet&#39;</span>
 </pre></div>
 
 
 <p>And when run:</p>
-<div class="highlight"><pre>time sudo python madmax_send.py
+<div class="highlight"><pre><span></span>time sudo python madmax_send.py
 WARNING: No route found for IPv6 destination :: (no default route?)
 sent packet
 sent packet
@@ -193,22 +193,7 @@ sudo -E python madmax_send.py  0.36s user 0.02s system 82% cpu 0.464 total
 <p>Holy packets Batman! That's almost 2x the speed! \o/</p>
             <div class="hr"></div>
             <a href="#" class="go-top">Go Top</a>
-<div class="comments">
-    <div id="disqus_thread"></div>
-    <script type="text/javascript">
-        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = "byt3bl33d3r"; // required: replace example with your forum shortname
-
-        /* * * DON'T EDIT BELOW THIS LINE * * */
-        (function() {
-            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        })();
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-</div><footer class="footer">
+<footer class="footer">
     <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
 </footer>        </div>
     </div>
@@ -236,16 +221,6 @@ sudo -E python madmax_send.py  0.36s user 0.02s system 82% cpu 0.464 total
         $('body').on('click', 'a[href="#"]', function(event) {
             event.preventDefault();
         });
-    </script>
-    <script type="text/javascript">
-        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-    <script type="text/javascript">
-        try {
-            var pageTracker = _gat._getTracker("UA-57722219-2");
-            pageTracker._trackPageview();
-            } catch(err) {}
     </script>
 </body>
 </html>
