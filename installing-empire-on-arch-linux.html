@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
+
+
+        <title>Installing Empire on Arch Linux // byt3bl33d3r // /dev/random > blog.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                        <img class="avatar" alt="byt3bl33d3r" src="http://www.gravatar.com/avatar/e5572ab64fbf9e21bce12ade9d13487b">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Wed 30 March 2016</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Installing Empire on Arch Linux</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/arch-linux.html">Arch Linux</a>
+                                <a class="post-category" href="/tag/pentesting.html">Pentesting</a>
+                                <a class="post-category" href="/tag/how-to.html">How-To</a>
+                        </p>
+                </header>
+            </section>
+            <p>I'm an Arch linux fan and I've been using Empire on a lot of pentests recently. Problem is Empire requires Swig2 and Arch had only Swig3 in it's repos.</p>
+<p>Today I just noticed that the Arch AUR has a functional Swig2 package, and I finally got Empire running! W00t!</p>
+<p>So, without further ado (I'm assuming you have yaourt installed and you're using a python2 virtualenv):</p>
+<div class="highlight"><pre><span></span><span class="c1">#Install Swig2</span>
+yaourt -S swig2
+
+<span class="c1">#Temporarly symlink swig-2 to swig, otherwise python dependency compilation will fail</span>
+sudo ln -s /usr/bin/swig-2 /usr/bin/swig
+
+<span class="c1">#Again, I&#39;m assuming you&#39;re using a virtualenv cause python3 is the default python interpreter on arch</span>
+pip install pycrypto iptools pydispatcher m2crypto m2ext
+
+<span class="c1">#Remove the temporary symlink cause it could cause package conflicts</span>
+sudo rm /usr/bin/swig
+
+<span class="nb">cd</span> Empire/setup
+
+<span class="c1">#Initialize Empire&#39;s database</span>
+python setup_database.py
+
+<span class="c1">#Generate a self-signed cert to use https listeners</span>
+./cert.sh
+
+<span class="c1">#Run Empire</span>
+python empire
+</pre></div>
+
+
+<p>aaaaaand Profit! </p>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
