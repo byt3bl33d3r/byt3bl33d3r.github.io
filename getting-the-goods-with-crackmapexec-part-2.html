@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
+
+
+        <title>Getting the goods with CrackMapExec: Part 2 // byt3bl33d3r // /dev/random > blog.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                        <img class="avatar" alt="byt3bl33d3r" src="http://www.gravatar.com/avatar/e5572ab64fbf9e21bce12ade9d13487b">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Mon 25 April 2016</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Getting the goods with CrackMapExec: Part 2</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/pentesting.html">Pentesting</a>
+                                <a class="post-category" href="/tag/how-to.html">How-To</a>
+                                <a class="post-category" href="/tag/crackmapexec.html">CrackMapExec</a>
+                        </p>
+                </header>
+            </section>
+            <p>In <a href="https://byt3bl33d3r.github.io/getting-the-goods-with-crackmapexec-part-1.html">Part 1</a> we went over the basics such as:</p>
+<ul>
+<li>Using credentials</li>
+<li>Dumping credentials</li>
+<li>Executing commands</li>
+<li>Using the payload modules.</li>
+</ul>
+<p>Part 2 will cover CME's internal database and getting shells using Metasploit and Empire!</p>
+<h1>The Database</h1>
+<p>CME's internal database can be queried by using the cme_db.py script, two things get automatically logged to the database:</p>
+<ul>
+<li>Every host that CME touches</li>
+<li>Credential sets with Administrator access to a host</li>
+</ul>
+<p>Additionally, the database keeps track of which credential set has admin access over which host! 
+This is very useful in large environments where you can get drowned in tons of credentials very quickly and you'll eventually go crazy searching for the user account which had access to a specific box (true story).</p>
+<p>We can query all hosts that we've interacted with so far with the <em>hosts</em> command:</p>
+<p><img alt="hosts" src="/images/cme_db_hosts.png" /></p>
+<p>The output returns the number of creds with admin access to that box as well as the machine's IP and hostname.</p>
+<p>If we wanted to see the credentials with admin access to a specific machine we just need to specify that machine's IP or hostname as an argument to the <em>hosts</em> command:</p>
+<p><img alt="hostsquery" src="/images/cme_db_hosts_query.png" /></p>
+<p>Boom! Easy-Peasy!</p>
+<p>Inversely, we can also query for which machine(s) a certain credential set has admin access to.</p>
+<p>To view all available credentials we use the <em>creds</em> command:</p>
+<p><img alt="creds" src="/images/cme_db_creds.png" /></p>
+<p>The output returns the credential ID, credential type, username, password and the number of machines that credential set has admin access to.</p>
+<p>To see which machine(s) a credential set has access to we supply the account username as an argument to the <em>creds</em> command:</p>
+<p><img alt="credsquery" src="/images/cme_db_creds_query.png" /></p>
+<p>Booyah!</p>
+<h1>Getting all the Shells!</h1>
+<p>Who doesn't &lt;3 shells?</p>
+<p>Say we wanted a meterpreter session on all of the boxes in the LAB domain, since in <a href="https://byt3bl33d3r.github.io/getting-the-goods-with-crackmapexec-part-1.html">Part 1</a> we got DA, we can shell all the things! </p>
+<p>Let's take a look at the options for the <em>meterpreter_inject</em> module:</p>
+<p><img alt="metinjectinfo" src="/images/met_inject_info.png" /></p>
+<p>Perfect let's run it on every machine, we specify the <em>meterpreter_inject</em> module and we give it the LHOST and LPORT values of our handler:</p>
+<p><img alt="metinject" src="/images/metinject.gif" /></p>
+<p>Yay! It's raining shells!</p>
+<p><img alt="metshellz" src="/images/met_shells.png" /></p>
+<p>C00l, we have a lot of meterpreter sessions. What if we wanted an Empire agent on every machine? </p>
+<p>It just so happens there's a module for that:</p>
+<p><img alt="empireexecinfo" src="/images/empire_agent_exec.png" /></p>
+<p>The <em>empire_agent_exec</em> module just needs the Empire listener name. It then generates a valid launcher through <a href="http://www.harmj0y.net/blog/empire/empires-restful-api/">Empire's new RESTful API!</a> Let's start that up real quick:</p>
+<p><img alt="empirerestapi" src="/images/empire_rest.png" /></p>
+<p>(You can change the host, username and password used to authenticate to the API in the cme.conf file)</p>
+<p>Let's create a listener named CMETest:</p>
+<p><img alt="empirelistener" src="/images/empire_listner.png" /></p>
+<p>We're all set, now lets rock and roll:</p>
+<p><img alt="empireexec" src="/images/empire_exec.gif" /></p>
+<p>Here's what we did:</p>
+<ul>
+<li>We used the <em>-id</em> flag to specify the Administrator creds: since we used them previsouly CME saved them to it's database, we can just specify it's CredID and they will be automatically pulled from the back-end database and used to authenticate to the specified machines!</li>
+<li>We specified the Empire listener name with the LISTENER option: CME then connects to Empire's API, automatically generates the launcher and executes it.</li>
+</ul>
+<p>aaaand (you guessed it) SHELLS!!!</p>
+<p><img alt="empireshells" src="/images/empire_shells.png" /></p>
+<p>Hopefully this gave you an idea of how useful CME can be in large environments! </p>
+<p>Part 3 will go over pwning MSSQL databases and more of the payload modules!</p>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
