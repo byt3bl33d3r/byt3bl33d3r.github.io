@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
+
+
+        <title>Automating the Empire with the Death Star: getting Domain Admin with a push of a button // byt3bl33d3r // /dev/random > blog.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/theme/css/pure.css">
+    <link rel="stylesheet" href="/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                        <img class="avatar" alt="byt3bl33d3r" src="https://www.gravatar.com/avatar/a5e232f735df53887f3a230274af4235">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Mon 29 May 2017</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Automating the Empire with the Death Star: getting Domain Admin with a push of a button</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="/tag/active-directory.html">Active Directory</a>
+                        </p>
+                </header>
+            </section>
+            <p>Ever since <a href="https://github.com/EmpireProject/Empire">Empire</a> and <a href="https://github.com/BloodHoundAD/BloodHound">BloodHound</a>, pentesting Active Directory has become pretty straight forward for 95% of the environments I get dropped in. </p>
+<p>I find myself doing the same things over and over again, and when that happens it's time to automate! After all a 'fire and forget' script that automatically gets Domain Admin has always been the dream right?</p>
+<p>Luckily for me a lot of other awesome people (see the Shout Outs section below) did all the hard stuff already. Additionally, <a href="https://github.com/EmpireProject/Empire">Empire</a> introduced a RESTful API a while ago making the creation of third-party scripts that interact with it a breeze. </p>
+<p>Before I continue, I'll take this opportunity for a rant: getting Domain Admin should <strong>NOT</strong> be the sole scope of your pentest and if it is you are doing it wrong. You should be focusing on post-exploitation, trying to find sensitive PII, documents etc.. anything that can clearly demonstrate to 'management' how much it could have impacted the organization if it were a real world compromise. However, having Domain Admin access does make life easier, provides additional value to the client and tends to make an impression on the Blue Team.</p>
+<h1>Project goals and implementation</h1>
+<p>Originally, I wanted something that could just take <a href="https://github.com/BloodHoundAD/BloodHound">BloodHounds</a> output, parse it, feed it to <a href="https://github.com/EmpireProject/Empire">Empire</a> and make it follow the 'chain'. However, <a href="https://github.com/BloodHoundAD/BloodHound">BloodHound</a> does not take into account (at least to my knowledge) paths that could be achieved using domain privilege escalations such as <a href="https://adsecurity.org/?p=2288">GPP Passwords in SYSVOL</a> (I personally find that one an almost every engagement).</p>
+<p>So I wanted a more 'active' version of BloodHound with 'worm like' behavior. Additionally, <a href="https://github.com/EmpireProject/Empire">Empire</a> has most of the core functionality of 
+<a href="https://github.com/BloodHoundAD/BloodHound">BloodHound</a> covered between all of it's modules and anything that BloodHound does functionality wise that Empire currently does not have a module for could be fairly easily implemented with one (e.g. the <a href="https://wald0.com/?p=112">ACL attack path update</a>, which is insanely awesome by the way)</p>
+<p>I decided to just stick with Empire and automate everything using it's RESTful API. This would also give me the freedom to parse a module's output as I see fit and have more control over the overall logic and user feedback.</p>
+<h1>What's it doing under the hood?</h1>
+<p>The following flow graph details pretty well (I think) what DeathStar does better than I could ever explain in a blog post.</p>
+<p><img alt="flow_graph" src="/images/flow_graph.png"></p>
+<p>If you've pentested Active Directory recently, you should be familiar with pretty much everything in that graph. If not, feel free to hit me up and I'll be glad to answer any questions.</p>
+<h1>Setting Up</h1>
+<p>Currently, for Death Star to work you're going to have to install my fork of Empire until this <a href="https://github.com/EmpireProject/Empire/pull/531">pull request</a> gets merged and the changes get pushed to master. The fork contains some API and back-end database fixes for scripts that interact with the RESTful API.</p>
+<ul>
+<li>DeathStar - <a href="https://github.com/byt3bl33d3r/DeathStar">https://github.com/byt3bl33d3r/DeathStar</a></li>
+<li>Empire - <a href="https://github.com/byt3bl33d3r/Empire">https://github.com/byt3bl33d3r/Empire</a></li>
+</ul>
+<p>Clone the above Empire repository and install it as you usually would, then run the following:</p>
+<div class="highlight"><pre><span></span>python empire --rest --username username --password password
+</pre></div>
+
+
+<p>That will start Empire's console and RESTful API server.</p>
+<p>To get DeathStar up and running:</p>
+<div class="highlight"><pre><span></span>git clone https://github.com/byt3bl33d3r/DeathStar
+<span class="c1"># Death Star is written in Python 3</span>
+pip3 install -r requirements.txt
+<span class="c1"># Supply the username and password you started Empire&#39;s RESTful API with</span>
+./DeathStar.py -u username -p password
+</pre></div>
+
+
+<p>If all goes well Death Star will create a http listener and you should see a 'Polling for Agents' status: this means you're authenticated to Empire's RESTful API and DeathStar is waiting for that first Agent.</p>
+<p>All you need now is an Agent on a domain joined machine, how you do that is beyond the scope of this blog post. I'd recommend using <a href="https://github.com/byt3bl33d3r/CrackMapExec">CrackMapExec</a> but I'm biased.</p>
+<h1>What does it look like in action?</h1>
+<p>Once you get that first Agent, DeathStar will take over and the magic will start.</p>
+<p>Here are a couple of videos of DeathStar obtaining Domain Admin in two different scenarios.</p>
+<p>In the first video, it elevates Domain privileges using the <a href="https://adsecurity.org/?p=2288">GPP Passwords in SYSVOL</a> vulnerability, spreads laterally to the machines the GPO is applied to using the decrypted credentials and eventually lands on a machine with a Domain Admin logged in. It then enumerates running processes and <a href="https://www.powershellempire.com/?page_id=273">PSInject's</a> into a process (explorer.exe by default) running under the Domain Admin account giving us an Agent running under that security context:</p>
+<div class="youtube youtube-16x9">
+<iframe src="https://www.youtube.com/embed/PTpg_9IgxB0" allowfullscreen seamless frameBorder="0"></iframe>
+</div>
+
+<p>In the second video, it actually obtains the Domain Admin's credentials using Mimikatz and abusing local admin relationships:</p>
+<div class="youtube youtube-16x9">
+<iframe src="https://www.youtube.com/embed/1ZCkC8FXSzs" allowfullscreen seamless frameBorder="0"></iframe>
+</div>
+
+<p>One thing that I'd like to point out: although these two videos take advantage of credentials in one way or another it is possible for DeathStar to obtain Domain Admin rights simply by using a combination of local admin relationships and <a href="https://www.powershellempire.com/?page_id=273">PSInject</a> without ever using a set of credentials.</p>
+<h1>Stuff that I'd like to see added</h1>
+<p>There is so much more that could be done with DeathStar: more domain privilege escalation techniques could be added, more lateral movement methods, the logic could be fine tuned a bit more, we could do some post-exploitation and SPN shenanigans etc.. The current release is definitely a rough first draft.</p>
+<p>The game changer would be SMB Named Pipe pivoting. Once that's in Empire this will truly 'walk and talk' like a worm.</p>
+<h1>Conclusion</h1>
+<p>DeathStar demonstrates that automating obtaining Domain Admin rights in an Active Directory environment is a clear possibility using existing open-source toolsets.
+I expect to see many more tools that do something like this in the near future (I personally know two people who are working on their own versions/implementations which is awesome, and I encourage more people to do so)</p>
+<p>One final point I'd like everyone to reflect on: I put this together in 3-4 days. Imagine what a bunch of much more smarter people than me could do/have already done with more time and resources (<em>cough</em> <em>cough</em> nation states <em>cough</em> <em>cough</em>). That's something that I think is particularly interesting.</p>
+<h1>Shout outs</h1>
+<p>None of this could be possible without the amazing research and hard work of these people (you seriously should be following them everywhere), and I'd like to personally thank them for their constant support and encouragement :)</p>
+<ul>
+<li><a href="https://twitter.com/harmj0y">harmj0y</a></li>
+<li><a href="https://twitter.com/_wald0">wald0</a></li>
+<li><a href="https://twitter.com/mattifestation">mattifestation</a></li>
+<li><a href="https://twitter.com/424f424f">rvrsh3ll</a></li>
+<li><a href="https://twitter.com/xorrior">xorrior</a></li>
+<li><a href="https://twitter.com/CptJesus">CptJesus</a></li>
+<li><a href="https://twitter.com/subTee">subTee</a></li>
+</ul>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
