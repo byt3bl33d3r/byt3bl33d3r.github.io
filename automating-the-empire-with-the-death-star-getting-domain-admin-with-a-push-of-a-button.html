@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
 
+        <link rel="alternate" href="https://byt3bl33d3r.github.io/feeds/all.rss.xml" type="application/rss+xml" title="byt3bl33d3r Full RSS Feed"/>
 
         <title>Automating the Empire with the Death Star: getting Domain Admin with a push of a button // byt3bl33d3r // /dev/random > blog.py</title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/theme/css/pure.css">
-    <link rel="stylesheet" href="/theme/css/pygments.css">
+    <link rel="stylesheet" href="https://byt3bl33d3r.github.io/theme/css/pure.css">
+    <link rel="stylesheet" href="https://byt3bl33d3r.github.io/theme/css/pygments.css">
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
@@ -28,7 +29,7 @@
     <div class="sidebar sidebar-article pure-u">
         <header class="header-article">
             <hgroup>
-                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                <a href="https://byt3bl33d3r.github.io/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
                         <img class="avatar" alt="byt3bl33d3r" src="https://www.gravatar.com/avatar/a5e232f735df53887f3a230274af4235">
                 </a>
                 <h2 class="article-info">byt3bl33d3r</h2>
@@ -45,7 +46,7 @@
                 <header class="post-header">
                     <h1>Automating the Empire with the Death Star: getting Domain Admin with a push of a button</h1>
                         <p class="post-meta">
-                            // under                                 <a class="post-category" href="/tag/active-directory.html">Active Directory</a>
+                            // under                                 <a class="post-category" href="https://byt3bl33d3r.github.io/tag/active-directory.html">Active Directory</a>
                         </p>
                 </header>
             </section>
@@ -60,7 +61,7 @@
 <p>I decided to just stick with Empire and automate everything using it's RESTful API. This would also give me the freedom to parse a module's output as I see fit and have more control over the overall logic and user feedback.</p>
 <h1>What's it doing under the hood?</h1>
 <p>The following flow graph details pretty well (I think) what DeathStar does better than I could ever explain in a blog post.</p>
-<p><img alt="flow_graph" src="/images/flow_graph.png"></p>
+<p><img alt="flow_graph" src="https://byt3bl33d3r.github.io/images/flow_graph.png"></p>
 <p>If you've pentested Active Directory recently, you should be familiar with pretty much everything in that graph. If not, feel free to hit me up and I'll be glad to answer any questions.</p>
 <h1>Setting Up</h1>
 <p>Currently, for Death Star to work you're going to have to install my fork of Empire until this <a href="https://github.com/EmpireProject/Empire/pull/531">pull request</a> gets merged and the changes get pushed to master. The fork contains some API and back-end database fixes for scripts that interact with the RESTful API.</p>

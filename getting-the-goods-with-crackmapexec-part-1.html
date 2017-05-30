@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
 
+        <link rel="alternate" href="https://byt3bl33d3r.github.io/feeds/all.rss.xml" type="application/rss+xml" title="byt3bl33d3r Full RSS Feed"/>
 
         <title>Getting the goods with CrackMapExec: Part 1 // byt3bl33d3r // /dev/random > blog.py</title>
 
 
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/theme/css/pure.css">
-    <link rel="stylesheet" href="/theme/css/pygments.css">
+    <link rel="stylesheet" href="https://byt3bl33d3r.github.io/theme/css/pure.css">
+    <link rel="stylesheet" href="https://byt3bl33d3r.github.io/theme/css/pygments.css">
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
@@ -28,7 +29,7 @@
     <div class="sidebar sidebar-article pure-u">
         <header class="header-article">
             <hgroup>
-                <a href="/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                <a href="https://byt3bl33d3r.github.io/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
                         <img class="avatar" alt="byt3bl33d3r" src="https://www.gravatar.com/avatar/a5e232f735df53887f3a230274af4235">
                 </a>
                 <h2 class="article-info">byt3bl33d3r</h2>
@@ -45,9 +46,9 @@
                 <header class="post-header">
                     <h1>Getting the goods with CrackMapExec: Part 1</h1>
                         <p class="post-meta">
-                            // under                                 <a class="post-category" href="/tag/pentesting.html">Pentesting</a>
-                                <a class="post-category" href="/tag/how-to.html">How-To</a>
-                                <a class="post-category" href="/tag/crackmapexec.html">CrackMapExec</a>
+                            // under                                 <a class="post-category" href="https://byt3bl33d3r.github.io/tag/pentesting.html">Pentesting</a>
+                                <a class="post-category" href="https://byt3bl33d3r.github.io/tag/how-to.html">How-To</a>
+                                <a class="post-category" href="https://byt3bl33d3r.github.io/tag/crackmapexec.html">CrackMapExec</a>
                         </p>
                 </header>
             </section>
@@ -66,43 +67,43 @@ Although there is some documentation already on the project's <a href="https://g
 <p>Now that you have an idea of what you're getting into, let's jump right in!</p>
 <h1>Situational Awareness</h1>
 <p>.. is extremely important. The first thing you want to do is just find out what's on the network:</p>
-<p><img alt="discovery" src="/images/cme_discovery.gif"></p>
+<p><img alt="discovery" src="https://byt3bl33d3r.github.io/images/cme_discovery.gif"></p>
 <p>We gave CME a /24 to scan and it discovered 5 Windows boxes connected to the LAB domain on the network. By default, it spins up 100 threads: you can use the -t flag to set how many concurrent threads to use.</p>
 <p>Perfect. We at least know what's out there. Once we have a set of credentials (in this case we have a regular domain user account), we're going to want to know what we can access. Before we go crazy on the network though lets do some quick recon to see how slow we have to take this:</p>
-<p><img alt="passpol" src="/images/cme_passpol.gif"></p>
+<p><img alt="passpol" src="https://byt3bl33d3r.github.io/images/cme_passpol.gif"></p>
 <p>We authenticated to the machine at 192.168.0.102 with our credentials and gave it the --pass-pol flag which dumped the domains password policy. From the output we can see that there's no account lockout threshold or duration. W00t! We can just spray and pray!</p>
 <p>Now that we don't have to worry about account lockouts, lets just authenticate to every box on the /24:</p>
-<p><img alt="auth" src="/images/cme_auth.gif"></p>
+<p><img alt="auth" src="https://byt3bl33d3r.github.io/images/cme_auth.gif"></p>
 <p>Lets enumerate all the shares:</p>
-<p><img alt="shares" src="/images/cme_shares.gif"></p>
+<p><img alt="shares" src="https://byt3bl33d3r.github.io/images/cme_shares.gif"></p>
 <p>The output gives you the name of the share and the permissions the credentials you're using have over them (e.g read, write).</p>
 <p>Noticed the yellow 'Pwn3d!' when we authenticated to the WIN10BOX at 192.168.0.12? That means we have Admin privileges on that machine!</p>
 <h1>Dumping SAM hashes and Executing commands</h1>
 <p>Now that we know our creds have Admin access over the WIN10BOX, lets go a-pilfering!</p>
 <p>First lets see who's logged into the machine:</p>
-<p><img alt="lusers" src="/images/cme_lusers.gif"></p>
+<p><img alt="lusers" src="https://byt3bl33d3r.github.io/images/cme_lusers.gif"></p>
 <p>Oh! Seems like a domain admin is logged in!</p>
 <p>Let's check to see if thats the case:</p>
-<p><img alt="netuser" src="/images/cme_netuser.gif"></p>
+<p><img alt="netuser" src="https://byt3bl33d3r.github.io/images/cme_netuser.gif"></p>
 <p>The -x flag executes commands via WMI by default (in this case we use the --exec-method flag to specify the smbexec execution method, this allows us to execute the command with system pivileges) we do a quick 'net user Administrator /domain' to verify that this user is indeed part of the Domain Administrators group.</p>
 <p>Before doing anything else, let's dump the local SAM hashes (cause why not):</p>
-<p><img alt="sam" src="/images/cme_sam.gif"></p>
+<p><img alt="sam" src="https://byt3bl33d3r.github.io/images/cme_sam.gif"></p>
 <p>Perfect, we could try passing-the-hash with these later using the -H flag (these hashes are stored in CME's database and in the logs folder), but we really want clear-text credentials. Problem is this is Windows 10, so we can't dump credentials from memory... or can we?</p>
 <p>Let's create the UseLogonCredential registry key! This allows us to re-enable the WDigest provider and dump clear-text credentials from LSA memory:</p>
-<p><img alt="wdigest" src="/images/cme_wdigest.gif"></p>
+<p><img alt="wdigest" src="https://byt3bl33d3r.github.io/images/cme_wdigest.gif"></p>
 <p>Now we have to just wait until the user logs out and back in again, however I'm impatient so I'll just log yomama off (ha!):</p>
-<p><img alt="logoff" src="/images/cme_logoff.gif"></p>
+<p><img alt="logoff" src="https://byt3bl33d3r.github.io/images/cme_logoff.gif"></p>
 <h1>Payload Modules</h1>
 <p>... a.k.a where all the fun is at.</p>
 <p>V3.0 of CME introduces Payload Modules, previously to v3.0 all Powershell functionality was built directly into the main code. Having modules allows anyone to create they're own payloads!</p>
 <p>All currently available modules are under the <a href="https://github.com/byt3bl33d3r/CrackMapExec/tree/master/modules">modules</a> folder.</p>
 <p>Since we want clear-text credentials, let's use the mimikatz module! With the -m flag we specify the path to the module.</p>
-<p><img alt="mimikatz" src="/images/cme_mimikatz.gif"></p>
+<p><img alt="mimikatz" src="https://byt3bl33d3r.github.io/images/cme_mimikatz.gif"></p>
 <p>Yay! Creds! And the Domain Admin password!</p>
 <p>Some modules require and/or support options, which you can specify with the -o flag msfvenom style:</p>
-<p><img alt="moptions" src="/images/cme_moduleoptions.png"></p>
+<p><img alt="moptions" src="https://byt3bl33d3r.github.io/images/cme_moduleoptions.png"></p>
 <p>To see the modules description and available/required options use the --module-info flag:</p>
-<p><img alt="minfo" src="/images/cme_moduleinfo.png"></p>
+<p><img alt="minfo" src="https://byt3bl33d3r.github.io/images/cme_moduleinfo.png"></p>
 <p>Obviously, all of this could have been performed on multiple hosts at the same time! It's <strong>really</strong> fun to mimikatz a /24 :D</p>
 <p>Hopefully this gave you an idea of what CME is all about! Part 2 will go over CME's internal database, getting shells and abusing TCP enabled MSSQL Databases! </p>
             <div class="hr"></div>
