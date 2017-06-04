@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="byt3bl33d3r, /dev/random > blog.py">
+
+        <link rel="alternate" href="https://byt3bl33d3r.github.io/feeds/all.rss.xml" type="application/rss+xml" title="byt3bl33d3r Full RSS Feed"/>
+
+        <title>Practical guide to Net-NTLM Relaying in 2017 (A.K.A getting a foothold in under 5 minutes) // byt3bl33d3r // /dev/random > blog.py</title>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://byt3bl33d3r.github.io/theme/css/pure.css">
+    <link rel="stylesheet" href="https://byt3bl33d3r.github.io/theme/css/pygments.css">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fitvids/1.0.1/jquery.fitvids.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $(".content").fitVids();
+        });
+    </script>
+</head>
+
+<body>
+<div class="pure-g-r" id="layout">
+    <div class="sidebar sidebar-article pure-u">
+        <header class="header-article">
+            <hgroup>
+                <a href="https://byt3bl33d3r.github.io/author/byt3bl33d3r.html" title="See posts by byt3bl33d3r">
+                        <img class="avatar" alt="byt3bl33d3r" src="https://www.gravatar.com/avatar/a5e232f735df53887f3a230274af4235">
+                </a>
+                <h2 class="article-info">byt3bl33d3r</h2>
+                <small class="about-author"></small>
+                <h5>Published</h5>
+                <p>Fri 02 June 2017</p>
+                <a href="/">&larr;Home</a>
+            </hgroup>
+        </header>
+    </div>
+    <div class="pure-u">
+        <div class="content">
+            <section class="post">
+                <header class="post-header">
+                    <h1>Practical guide to Net-NTLM Relaying in 2017 (A.K.A getting a foothold in under 5 minutes)</h1>
+                        <p class="post-meta">
+                            // under                                 <a class="post-category" href="https://byt3bl33d3r.github.io/tag/pentesting.html">Pentesting</a>
+                                <a class="post-category" href="https://byt3bl33d3r.github.io/tag/active-directory.html">Active Directory</a>
+                        </p>
+                </header>
+            </section>
+            <p>This blog post is mainly aimed to be a very 'cut &amp; dry' practical guide to help clear up any confusion regarding Net-NTLM relaying. Talking to pentesters I've noticed that there seems to be a lot of general confusion regarding Net-NTLM relaying (these are those pesky hashes you get with <a href="https://github.com/lgandx/Responder">Responder</a>). I also noticed there doesn't seem to be an up to date guide on how to do this on the interwebs, and the articles that I did see about the subject either reference tools that are outdated, broken and/or not maintained anymore.</p>
+<p>I won't go into detail on all the specifics since there are a TON of papers out there detailing how the attack actually works, <a href="https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python">this</a> one from SANS is probably the best in my opinion.</p>
+<p>Before we dive into the thick of it we need make sure we are on the same page.</p>
+<h1>NTLM vs NTLMv1/v2 vs Net-NTLMv1/Net-NTLMv2</h1>
+<p><strong>TL;DR when reading anything mentioning NTLMv1/NTLMv2 they <em>actually</em> mean Net-NTLMv1/Net-NTLMv2 (including the SANS article I linked)</strong></p>
+<p>This is where the confusion starts for a lot of people and quite frankly I don't blame them (I'm still not completely sure about the terminology regarding this, so if anything is wrong please let me know) because all of the articles about this attack seem to be using NTLM and Net-NTLM interchangeably (including the SANS article I linked above).</p>
+<p>NTLM and Net-NTLMv1/v2 are very different types of hashes.</p>
+<p>A NTLM hash looks like this:</p>
+<div class="highlight"><pre><span></span><span class="n">aad3b435b51404eeaad3b435b51404ee</span><span class="o">:</span><span class="n">e19ccf75ee54e06b06a5907af13cef42</span>
+</pre></div>
+
+
+<p>Contrary to what you'd expect, the LM hash is the one <em>before</em> the semicolon and the NT hash is the one <em>after</em> the semicolon. Some tools just give you the NT hash (e.g. <a href="https://github.com/gentilkiwi/mimikatz">Mimikatz</a>) and that's perfectly fine: you can still Pass-The-Hash with just the NT hash.</p>
+<p>A Net-NTLMv1 hash looks like this:</p>
+<div class="highlight"><pre><span></span>u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c
+</pre></div>
+
+
+<p>A Net-NTLMv2 hash looks like this:</p>
+<div class="highlight"><pre><span></span>admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030 
+</pre></div>
+
+
+<p>(These hashes were taken from the Hashcat example hash page <a href="https://hashcat.net/wiki/doku.php?id=example_hashes">here</a>)</p>
+<p>From a pentesting perspective:</p>
+<ul>
+<li>
+<p>You get NTLM hashes from <a href="https://github.com/gentilkiwi/mimikatz">Mimikatz</a> or when dumping the SAM database of any modern Windows OS (Fun fact, although you can't get clear-text passwords from Mimikatz on Windows &gt;= 8.1 you can get NTLM hashes from memory). You <strong>CAN</strong> perform Pass-The-Hash attacks with these hashes.</p>
+</li>
+<li>
+<p>You get Net-NTLMv1/Net-NTLMv2 hashes when using tools like <a href="https://github.com/lgandx/Responder">Responder</a> or <a href="https://github.com/Kevin-Robertson/Inveigh">Inveigh</a>. You <strong>CANNOT</strong> use these hashes to Pass-The-Hash.</p>
+</li>
+</ul>
+<p>So this article is going to be talking about what you can do with Net-NTLMv1/Net-NTLMv2 in <em>modern</em> windows environments.</p>
+<h1>Relaying 101</h1>
+<p>Since <a href="https://technet.microsoft.com/en-us/library/security/ms08-068.aspx">MS08-068</a> you cannot relay a Net-NTLM hash back to the same machine you got it from (e.g. the 'reflective' attack) unless you're performing a cross-protocol relay, however you can still relay the hash to another machine.</p>
+<p>In summary: you don't <em>have</em> to crack the hashes you get from <a href="https://github.com/lgandx/Responder">Responder</a>, you can directly relay them to other machines!</p>
+<p>What's really cool about this? You can use <a href="https://github.com/lgandx/Responder">Responder</a> in combination with a relay tool to automatically intercept connections and relay authentication hashes!</p>
+<p>The only caveat to this attack? <a href="https://technet.microsoft.com/en-us/library/cc180803.aspx">SMB Signing</a> needs to be disabled on the machine you're relaying too. With the exception of Windows Server OS's, all Windows operating systems have <a href="https://technet.microsoft.com/en-us/library/cc180803.aspx">SMB Signing</a> disabled by default. </p>
+<p>Personally, I consider <a href="https://technet.microsoft.com/en-us/library/cc180803.aspx">SMB Signing</a> to be one of the most overlooked and underrated security setting in Windows specifically because of this attack and how easy it allows for attackers to gain an initial foothold.</p>
+<h1>Setting up</h1>
+<p>Grab <a href="https://github.com/lgandx/Responder">Responder</a>, edit the Responder.conf file and turn of SMB and HTTP servers:</p>
+<div class="highlight"><pre><span></span><span class="k">[Responder Core]</span>
+
+<span class="c1">; Servers to start</span>
+<span class="na">SQL</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">SMB</span> <span class="o">=</span> <span class="s">Off     # Turn this off</span>
+<span class="na">Kerberos</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">FTP</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">POP</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">SMTP</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">IMAP</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">HTTP</span> <span class="o">=</span> <span class="s">Off    # Turn this off</span>
+<span class="na">HTTPS</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">DNS</span> <span class="o">=</span> <span class="s">On</span>
+<span class="na">LDAP</span> <span class="o">=</span> <span class="s">On</span>
+</pre></div>
+
+
+<p>There are 2 main tools that can be used to perform the relay attacks:</p>
+<ul>
+<li><a href="https://github.com/CoreSecurity/impacket/blob/master/examples/ntlmrelayx.py">ntlmrelayx.py</a> which comes with the <a href="https://github.com/CoreSecurity/impacket">Impacket</a> library</li>
+<li><a href="https://github.com/lgandx/Responder/blob/master/tools/MultiRelay.py">MultiRelay.py</a> that comes with the <a href="https://github.com/lgandx/Responder">Responder</a> toolkit</li>
+</ul>
+<p>I personally use <a href="https://github.com/CoreSecurity/impacket/blob/master/examples/ntlmrelayx.py">ntlmrelayx.py</a> so I'll stick with that for this blogpost.
+Install <a href="https://github.com/CoreSecurity/impacket">Impacket</a> using pip or manually by git cloning the repo and running the setup file and it will put the <a href="https://github.com/CoreSecurity/impacket/blob/master/examples/ntlmrelayx.py">ntlmrelayx.py</a> script in your path.</p>
+<p>Before you fire that up though you need a list of targets, how you do that is up to you. I personally use <a href="https://github.com/byt3bl33d3r/CrackMapExec">CrackMapExec</a>, v4 has a handy <code>--gen-relay-list</code> flag just for this ;)</p>
+<div class="highlight"><pre><span></span>cme smb &lt;CIDR&gt; --gen-relay-list targets.txt
+</pre></div>
+
+
+<p>The above command will generate a list of all hosts with <a href="https://technet.microsoft.com/en-us/library/cc180803.aspx">SMB Signing</a> disabled and output them to the specified file.</p>
+<h1>0wning Stuff</h1>
+<p>Now that you have everything you need, fire up <a href="https://github.com/lgandx/Responder">Responder</a> in one terminal window and <a href="https://github.com/CoreSecurity/impacket/blob/master/examples/ntlmrelayx.py">ntlmrelayx.py</a> in another.</p>
+            <div class="hr"></div>
+            <a href="#" class="go-top">Go Top</a>
+<footer class="footer">
+    <p>Built with <a href="https://github.com/PurePelicanTheme/pure">Pure Theme</a> for <a href="http://blog.getpelican.com/">Pelican</a></p>
+</footer>        </div>
+    </div>
+</div>
+    <script>
+        var $top = $('.go-top');
+
+        // Show or hide the sticky footer button
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 200) {
+                $top.fadeIn(200);
+            } else {
+                $top.fadeOut(200);
+            }
+        });
+
+        // Animate the scroll to top
+        $top.click(function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop: 0}, 300);
+        })
+
+        // Makes sure that the href="#" attached to the <a> elements
+        // don't scroll you back up the page.
+        $('body').on('click', 'a[href="#"]', function(event) {
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
