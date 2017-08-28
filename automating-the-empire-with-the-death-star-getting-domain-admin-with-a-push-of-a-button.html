@@ -64,12 +64,13 @@
 <p><img alt="flow_graph" src="https://byt3bl33d3r.github.io/images/flow_graph.png"></p>
 <p>If you've pentested Active Directory recently, you should be familiar with pretty much everything in that graph. If not, feel free to hit me up and I'll be glad to answer any questions.</p>
 <h1>Setting Up</h1>
-<p>Currently, for Death Star to work you're going to have to install my fork of Empire until this <a href="https://github.com/EmpireProject/Empire/pull/531">pull request</a> gets merged and the changes get pushed to master. The fork contains some API and back-end database fixes for scripts that interact with the RESTful API.</p>
+<p><del>Currently, for Death Star to work you're going to have to install my fork of Empire until this <a href="https://github.com/EmpireProject/Empire/pull/531">pull request</a> gets merged and the changes get pushed to master. The fork contains some API and back-end database fixes for scripts that interact with the RESTful API.</del></p>
+<p><strong>Edit 08/28/2017 - Empire 2.1 was released, changes were merged so you can now use the main Empire repo with DeathStar :)</strong></p>
 <ul>
 <li>DeathStar - <a href="https://github.com/byt3bl33d3r/DeathStar">https://github.com/byt3bl33d3r/DeathStar</a></li>
-<li>Empire - <a href="https://github.com/byt3bl33d3r/Empire">https://github.com/byt3bl33d3r/Empire</a></li>
+<li>Empire - <a href="https://github.com/EmpireProject/Empire">https://github.com/EmpireProject/Empire</a></li>
 </ul>
-<p>Clone the above Empire repository and install it as you usually would, then run the following:</p>
+<p>Clone Empire, install it, then run the following:</p>
 <div class="highlight"><pre><span></span>python empire --rest --username username --password password
 </pre></div>
 
